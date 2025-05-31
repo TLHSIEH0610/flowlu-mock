@@ -3,23 +3,41 @@
 import { prisma } from "@/db/prisma";
 import { revalidatePath } from "next/cache";
 import { logToSentry } from "@/utils/sentry";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function createTicket(
   prevState: { success: boolean; message: string },
   formData: FormData
 ): Promise<{ success: boolean; message: string }> {
   try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      logToSentry(
+        "Unauthorized ticket creation attempt",
+        "ticket",
+        {},
+        "warning"
+      );
+
+      return {
+        success: false,
+        message: "You must be logged in to create a ticket",
+      };
+    }
+
     const title = formData.get("title") as string;
     const type = formData.get("type") as string;
     const description = formData.get("description") as string;
     const priority = formData.get("priority") as string;
-    const estimation = formData.get("estimation") as string;
+    const estimation = parseInt(formData.get("estimation") as string) || 0;
 
-    if (!title || !description || !priority || !type || !estimation) {
+    if (!title || !description || !priority || !type) {
+      console.log({ title, description, priority, type });
       logToSentry(
         "Validation Error: Missing ticket fields",
         "ticket",
-        { title, description, priority, type, estimation },
+        { title, description, priority, type },
         "warning"
       );
       return { success: false, message: "All fields are required" };
@@ -27,7 +45,20 @@ export async function createTicket(
 
     // Create ticket
     const ticket = await prisma.ticket.create({
-      data: { title, description, priority, type, estimation },
+      data: {
+        title,
+        description,
+        priority,
+        type,
+        estimation,
+        status: "OPEN",
+        user: {
+          connect: { id: user.id },
+        },
+        category: {
+          connect: { id: 1 },
+        },
+      },
     });
 
     logToSentry(
@@ -55,5 +86,19 @@ export async function createTicket(
       success: false,
       message: "An error occured while creating the ticket",
     };
+  }
+}
+
+export async function getTickets() {
+  try {
+    const tickets = await prisma.ticket.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+
+    return tickets;
+  } catch (error) {
+    logToSentry("Error fetching tickets", "ticket", {}, "error", error);
+
+    return [];
   }
 }
