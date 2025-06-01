@@ -31,6 +31,7 @@ export async function createTicket(
     const description = formData.get("description") as string;
     const priority = formData.get("priority") as string;
     const estimation = parseInt(formData.get("estimation") as string) || 0;
+    const category = parseInt(formData.get("category") as string) || 1;
 
     if (!title || !description || !priority || !type) {
       console.log({ title, description, priority, type });
@@ -56,7 +57,7 @@ export async function createTicket(
           connect: { id: user.id },
         },
         category: {
-          connect: { id: 1 },
+          connect: { id: category },
         },
       },
     });

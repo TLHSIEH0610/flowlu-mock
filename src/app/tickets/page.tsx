@@ -9,7 +9,7 @@ export default async function TicketsPage() {
   return (
     <div className="min-h-screen p-8 bg-[#f8f9fd]">
       <Categories />
-      <h1 className="text-3xl font-bold text-blue-600 mb-8 text-center">
+      {/* <h1 className="text-3xl font-bold text-blue-600 mb-8 text-center">
         Board
       </h1>
       {tickets.length === 0 ? (
@@ -20,7 +20,7 @@ export default async function TicketsPage() {
             <TicketDetails key={ticket.id} ticket={ticket} />
           ))}
         </div>
-      )}
+      )} */}
     </div>
   );
 }

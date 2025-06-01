@@ -4,8 +4,9 @@ import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createTicket } from "@/actions/ticket.actions";
 import { toast } from "sonner";
+import { CategoryProps } from "@/types/ticket";
 
-const NewTicketForm = () => {
+const NewTicketForm = ({ categories }: { categories: CategoryProps[] }) => {
   const [state, formAction] = useActionState(createTicket, {
     success: false,
     message: "",
@@ -40,6 +41,24 @@ const NewTicketForm = () => {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
+          Category
+        </label>
+
+        <select
+          name="category"
+          defaultValue={1}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
           Title
         </label>
         <input
@@ -55,6 +74,7 @@ const NewTicketForm = () => {
           Estimation
         </label>
         <input
+          defaultValue={0}
           type="number"
           name="estimation"
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

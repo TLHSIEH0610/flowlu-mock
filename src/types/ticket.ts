@@ -11,3 +11,9 @@ export interface TicketProps {
   userId: string;
   categoryId: number;
 }
+
+export interface CategoryProps {
+  id: number;
+  name: string;
+  tickets: TicketProps[];
+}
