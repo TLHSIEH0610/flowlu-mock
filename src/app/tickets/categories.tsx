@@ -5,6 +5,7 @@ import { CategoryProps, TicketProps } from "@/types/ticket";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useState, useEffect, useRef } from "react";
+import { updateTicketCategory } from "@/actions/ticket.actions";
 
 const categoryColors: Record<string, string> = {
   "To do": "border-l-4 border-blue-500 bg-blue-50",
@@ -193,27 +194,34 @@ export default function Categories() {
     sourceCategoryId: number,
     targetCategoryId: number
   ) => {
+    let draggedTicketId: string | null = null;
+    let updatedTargetCategoryId: number | null = null;
+
     setCategories((prev) => {
       const updated = structuredClone(prev);
 
       const sourceCategory = updated.find((c) => c.id === sourceCategoryId);
       const targetCategory = updated.find((c) => c.id === targetCategoryId);
-
       if (!sourceCategory || !targetCategory) return prev;
 
       const [draggedTicket] = sourceCategory.tickets.splice(dragIndex, 1);
       if (!draggedTicket) return prev;
 
-      // Reassign to new category if changed
       if (sourceCategoryId !== targetCategoryId) {
         draggedTicket.categoryId = targetCategoryId;
+        draggedTicketId = draggedTicket.id; // capture for later
+        updatedTargetCategoryId = targetCategoryId;
       }
 
-      // Insert ticket at correct position
       targetCategory.tickets.splice(hoverIndex, 0, draggedTicket);
-
       return updated;
     });
+
+    if (draggedTicketId && updatedTargetCategoryId !== null) {
+      updateTicketCategory(draggedTicketId, updatedTargetCategoryId).catch(
+        console.error
+      );
+    }
   };
 
   useEffect(() => {

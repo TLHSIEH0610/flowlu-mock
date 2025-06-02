@@ -103,3 +103,47 @@ export async function getTickets() {
     return [];
   }
 }
+
+export async function updateTicketCategory(
+  ticketId: string,
+  newCategoryId: number
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const category = await prisma.category.findUnique({
+      where: { id: newCategoryId },
+    });
+
+    if (!category) {
+      return {
+        success: false,
+        message: "Category not found",
+      };
+    }
+
+    await prisma.ticket.update({
+      where: { id: ticketId },
+      data: {
+        categoryId: newCategoryId,
+      },
+    });
+
+    revalidatePath("/tickets");
+
+    return {
+      success: true,
+      message: "Ticket moved to new category",
+    };
+  } catch (error) {
+    logToSentry(
+      "Error updating ticket category",
+      "ticket",
+      { ticketId, newCategoryId },
+      "error",
+      error
+    );
+    return {
+      success: false,
+      message: "An error occurred while moving the ticket",
+    };
+  }
+}
