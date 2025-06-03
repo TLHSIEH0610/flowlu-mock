@@ -130,6 +130,21 @@ const Category = ({
     targetCategoryId: number
   ) => void;
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+
+  const handleAddTicket = async () => {
+    if (!newTitle.trim()) return;
+
+    //  save the ticket and update state
+
+    setShowForm(false);
+    setNewTitle("");
+    setNewDescription("");
+  };
+
   const [, drop] = useDrop<DragItem>({
     accept: "TICKET",
     drop: (item: DragItem, monitor) => {
@@ -149,7 +164,15 @@ const Category = ({
   });
 
   return (
-    <div ref={drop} className="flex flex-col gap-4 min-w-[300px]">
+    <div
+      ref={drop}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setShowForm(false);
+      }}
+      className="relative flex flex-col gap-4 min-w-[300px]"
+    >
       <div
         className={`rounded-md shadow-sm px-4 py-6 ${
           categoryColors[category.name] ?? "border-l-4 border-gray-300 bg-white"
@@ -158,6 +181,18 @@ const Category = ({
         <h3 className="text-lg text-black font-semibold mb-4">
           {category.name}
         </h3>
+        <p className="text-sm text-gray-500">
+          {category.tickets.length} Issues
+        </p>
+
+        {isHovered && !showForm && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="absolute left-1/2 transform -translate-x-1/2 bg-white shadow-md  p-2 rounded-xl text-gray-600 hover:bg-blue-50"
+          >
+            +
+          </button>
+        )}
       </div>
       <div
         className={`space-y-3 w-full flex flex-col gap-4 min-h-[120px] p-2 ${
@@ -168,6 +203,42 @@ const Category = ({
         {category.tickets.length === 0 && (
           <div className="text-center text-gray-400 text-sm italic py-4">
             No tickets
+          </div>
+        )}
+
+        {/* Create Ticket Form */}
+        {showForm && (
+          <div className="bg-white p-4 rounded shadow-md flex flex-col gap-2">
+            <input
+              type="text"
+              className="border px-2 py-1 rounded"
+              placeholder="Add a task and press Enter"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAddTicket()}
+              autoFocus
+            />
+            <textarea
+              className="border px-2 py-1 rounded"
+              placeholder="Description"
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+            />
+            {/* Assignee dropdown can go here */}
+            <div className="flex justify-between mt-2">
+              <button
+                className="text-sm text-gray-500 hover:underline"
+                onClick={() => setShowForm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddTicket}
+                className="text-sm text-blue-600 font-medium hover:underline"
+              >
+                Save
+              </button>
+            </div>
           </div>
         )}
 

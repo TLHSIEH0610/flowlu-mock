@@ -1,8 +1,12 @@
 import Image from "next/image";
+import UserIcon from "./navbar-user";
+import { getCurrentUser } from "@/lib/auth";
 
 const Navbar = async () => {
+  const user = await getCurrentUser();
+
   return (
-    <nav className="bg-[#26263E] border-b border-gray-200 px-6 py-2 flex justify-between items-center">
+    <nav className="bg-[#26263E] border-b border-gray-200 px-6 py-2 flex justify-between items-center relative">
       <div className="flex items-center gap-2">
         <Image
           src="/images/flowlu_logo.svg"
@@ -12,6 +16,9 @@ const Navbar = async () => {
           className="object-contain"
         />
       </div>
+
+      {/* Profile Avatar and Dropdown */}
+      <UserIcon user={user} />
     </nav>
   );
 };
