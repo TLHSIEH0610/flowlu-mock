@@ -6,6 +6,8 @@ import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useState, useEffect, useRef } from "react";
 import { updateTicketCategory } from "@/actions/ticket.actions";
+import Drawer from "@/components/drawer";
+import TicketDetails from "./ticketDetails";
 
 const categoryColors: Record<string, string> = {
   "To do": "border-l-4 border-blue-500 bg-blue-50",
@@ -32,6 +34,7 @@ const Ticket = ({
   ticketIndex,
   categoryId,
   moveTicket,
+  onClick,
 }: {
   ticket: TicketProps;
   ticketIndex: number;
@@ -42,6 +45,7 @@ const Ticket = ({
     sourceCategoryId: number,
     targetCategoryId: number
   ) => void;
+  onClick: () => void;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -49,16 +53,14 @@ const Ticket = ({
     accept: "TICKET",
     hover(item, monitor) {
       if (!ref.current) return;
-
       const dragIndex = item.ticketIndex;
       const hoverIndex = ticketIndex;
 
       if (
         item.id === ticket.id ||
         (dragIndex === hoverIndex && item.categoryId === categoryId)
-      ) {
+      )
         return;
-      }
 
       const hoverBoundingRect = ref.current.getBoundingClientRect();
       const hoverMiddleY =
@@ -66,12 +68,10 @@ const Ticket = ({
       const clientOffset = monitor.getClientOffset();
       const hoverClientY = clientOffset.y - hoverBoundingRect.top;
 
-      // Only move ticket when cursor has passed halfway
       if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) return;
       if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) return;
 
       moveTicket(dragIndex, hoverIndex, item.categoryId, categoryId);
-
       item.ticketIndex = hoverIndex;
       item.categoryId = categoryId;
     },
@@ -90,12 +90,13 @@ const Ticket = ({
   return (
     <div
       ref={ref}
+      onClick={onClick}
       style={{
         opacity: isDragging ? 0.4 : 1,
         transform: isDragging ? "scale(1.02)" : "scale(1)",
         transition: "all 0.2s ease",
       }}
-      className="bg-white rounded-md p-3 shadow-sm hover:shadow-md transition-all cursor-move"
+      className="bg-white rounded-md p-3 shadow-sm hover:shadow-md transition-all cursor-pointer"
     >
       <div className="flex items-start justify-between">
         <h4 className="font-medium text-gray-900">{ticket.title}</h4>
@@ -121,6 +122,7 @@ const Ticket = ({
 const Category = ({
   category,
   moveTicket,
+  onTicketClick,
 }: {
   category: CategoryProps;
   moveTicket: (
@@ -129,6 +131,7 @@ const Category = ({
     sourceCategoryId: number,
     targetCategoryId: number
   ) => void;
+  onTicketClick: (ticket: TicketProps) => void;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -137,9 +140,6 @@ const Category = ({
 
   const handleAddTicket = async () => {
     if (!newTitle.trim()) return;
-
-    //  save the ticket and update state
-
     setShowForm(false);
     setNewTitle("");
     setNewDescription("");
@@ -147,7 +147,7 @@ const Category = ({
 
   const [, drop] = useDrop<DragItem>({
     accept: "TICKET",
-    drop: (item: DragItem, monitor) => {
+    drop: (item, monitor) => {
       if (!monitor.didDrop()) {
         if (item.categoryId !== category.id) {
           moveTicket(
@@ -184,7 +184,6 @@ const Category = ({
         <p className="text-sm text-gray-500">
           {category.tickets.length} Issues
         </p>
-
         {isHovered && !showForm && (
           <button
             onClick={() => setShowForm(true)}
@@ -194,19 +193,18 @@ const Category = ({
           </button>
         )}
       </div>
+
       <div
         className={`space-y-3 w-full flex flex-col gap-4 min-h-[120px] p-2 ${
           category.tickets.length === 0 ? "bg-gray-50 rounded-md" : ""
         }`}
       >
-        {/* allows tikets to be dropped if the category is empty */}
         {category.tickets.length === 0 && (
           <div className="text-center text-gray-400 text-sm italic py-4">
             No tickets
           </div>
         )}
 
-        {/* Create Ticket Form */}
         {showForm && (
           <div className="bg-white p-4 rounded shadow-md flex flex-col gap-2">
             <input
@@ -224,7 +222,6 @@ const Category = ({
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
             />
-            {/* Assignee dropdown can go here */}
             <div className="flex justify-between mt-2">
               <button
                 className="text-sm text-gray-500 hover:underline"
@@ -249,6 +246,7 @@ const Category = ({
             ticketIndex={ticketIndex}
             categoryId={category.id}
             moveTicket={moveTicket}
+            onClick={() => onTicketClick(ticket)}
           />
         ))}
       </div>
@@ -258,6 +256,9 @@ const Category = ({
 
 export default function Categories() {
   const [categories, setCategories] = useState<CategoryProps[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<TicketProps | null>(
+    null
+  );
 
   const moveTicket = (
     dragIndex: number,
@@ -270,7 +271,6 @@ export default function Categories() {
 
     setCategories((prev) => {
       const updated = structuredClone(prev);
-
       const sourceCategory = updated.find((c) => c.id === sourceCategoryId);
       const targetCategory = updated.find((c) => c.id === targetCategoryId);
       if (!sourceCategory || !targetCategory) return prev;
@@ -280,7 +280,7 @@ export default function Categories() {
 
       if (sourceCategoryId !== targetCategoryId) {
         draggedTicket.categoryId = targetCategoryId;
-        draggedTicketId = draggedTicket.id; // capture for later
+        draggedTicketId = draggedTicket.id;
         updatedTargetCategoryId = targetCategoryId;
       }
 
@@ -311,9 +311,14 @@ export default function Categories() {
             key={category.id}
             category={category}
             moveTicket={moveTicket}
+            onTicketClick={(ticket) => setSelectedTicket(ticket)}
           />
         ))}
       </div>
+
+      <Drawer isOpen={!!selectedTicket} onClose={() => setSelectedTicket(null)}>
+        {selectedTicket && <TicketDetails ticket={selectedTicket} />}
+      </Drawer>
     </DndProvider>
   );
 }
