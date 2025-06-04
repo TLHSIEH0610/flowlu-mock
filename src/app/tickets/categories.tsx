@@ -8,12 +8,13 @@ import { useState, useEffect, useRef } from "react";
 import { updateTicketCategory } from "@/actions/ticket.actions";
 import Drawer from "@/components/drawer";
 import TicketDetails from "./ticketDetails";
+import SimpleTicketForm from "./create/form-simple";
 
 const categoryColors: Record<string, string> = {
-  "To do": "border-l-4 border-blue-500 bg-blue-50",
-  "In progress": "border-l-4 border-yellow-500 bg-yellow-50",
-  "Pull request": "border-l-4 border-amber-500 bg-amber-50",
-  Done: "border-l-4 border-purple-500 bg-purple-50",
+  todo: "border-l-4 border-blue-500 bg-blue-50",
+  inprogress: "border-l-4 border-yellow-500 bg-yellow-50",
+  done: "border-l-4 border-purple-500 bg-purple-50",
+  accepted: "border-l-4 border-green-500 bg-green-50",
 };
 
 const priorityColors: Record<string, string> = {
@@ -123,6 +124,7 @@ const Category = ({
   category,
   moveTicket,
   onTicketClick,
+  refreshCategories,
 }: {
   category: CategoryProps;
   moveTicket: (
@@ -132,18 +134,10 @@ const Category = ({
     targetCategoryId: number
   ) => void;
   onTicketClick: (ticket: TicketProps) => void;
+  refreshCategories: () => void;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newDescription, setNewDescription] = useState("");
-
-  const handleAddTicket = async () => {
-    if (!newTitle.trim()) return;
-    setShowForm(false);
-    setNewTitle("");
-    setNewDescription("");
-  };
 
   const [, drop] = useDrop<DragItem>({
     accept: "TICKET",
@@ -169,7 +163,6 @@ const Category = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);
-        setShowForm(false);
       }}
       className="relative flex flex-col gap-4 min-w-[300px]"
     >
@@ -187,7 +180,7 @@ const Category = ({
         {isHovered && !showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="absolute left-1/2 transform -translate-x-1/2 bg-white shadow-md  p-2 rounded-xl text-gray-600 hover:bg-blue-50"
+            className="absolute left-1/2  bg-white shadow-md px-3 p-1 rounded-xl text-gray-600 hover:bg-blue-50"
           >
             +
           </button>
@@ -199,43 +192,17 @@ const Category = ({
           category.tickets.length === 0 ? "bg-gray-50 rounded-md" : ""
         }`}
       >
+        {showForm && (
+          <SimpleTicketForm
+            setShowForm={setShowForm}
+            categoryId={category.id}
+            refreshCategories={refreshCategories}
+          />
+        )}
+
         {category.tickets.length === 0 && (
           <div className="text-center text-gray-400 text-sm italic py-4">
             No tickets
-          </div>
-        )}
-
-        {showForm && (
-          <div className="bg-white p-4 rounded shadow-md flex flex-col gap-2">
-            <input
-              type="text"
-              className="border px-2 py-1 rounded"
-              placeholder="Add a task and press Enter"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAddTicket()}
-              autoFocus
-            />
-            <textarea
-              className="border px-2 py-1 rounded"
-              placeholder="Description"
-              value={newDescription}
-              onChange={(e) => setNewDescription(e.target.value)}
-            />
-            <div className="flex justify-between mt-2">
-              <button
-                className="text-sm text-gray-500 hover:underline"
-                onClick={() => setShowForm(false)}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddTicket}
-                className="text-sm text-blue-600 font-medium hover:underline"
-              >
-                Save
-              </button>
-            </div>
           </div>
         )}
 
@@ -295,12 +262,13 @@ export default function Categories() {
     }
   };
 
+  const refreshCategories = async () => {
+    const data = await getCategories();
+    setCategories(data);
+  };
+
   useEffect(() => {
-    const load = async () => {
-      const data = await getCategories();
-      setCategories(data);
-    };
-    load();
+    refreshCategories();
   }, []);
 
   return (
@@ -312,6 +280,7 @@ export default function Categories() {
             category={category}
             moveTicket={moveTicket}
             onTicketClick={(ticket) => setSelectedTicket(ticket)}
+            refreshCategories={refreshCategories}
           />
         ))}
       </div>

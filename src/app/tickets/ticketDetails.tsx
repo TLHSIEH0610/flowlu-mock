@@ -1,13 +1,4 @@
-"use client";
-
 import { TicketProps } from "@/types/ticket";
-
-const priorityColors: Record<string, string> = {
-  Low: "bg-gray-100 text-gray-600",
-  Medium: "bg-yellow-100 text-yellow-600",
-  High: "bg-red-100 text-red-600",
-  Urgent: "bg-purple-100 text-purple-600",
-};
 
 const TicketDetails = ({ ticket }: { ticket: TicketProps }) => {
   return (

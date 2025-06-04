@@ -4,6 +4,7 @@ import { prisma } from "@/db/prisma";
 import { revalidatePath } from "next/cache";
 import { logToSentry } from "@/utils/sentry";
 import { getCurrentUser } from "@/lib/auth";
+import { Priority, TicketType } from "@prisma/client";
 
 export async function createTicket(
   prevState: { success: boolean; message: string },
@@ -31,9 +32,9 @@ export async function createTicket(
     const description = formData.get("description") as string;
     const priority = formData.get("priority") as string;
     const estimation = parseInt(formData.get("estimation") as string) || 0;
-    const category = parseInt(formData.get("category") as string) || 1;
+    const categoryId = parseInt(formData.get("categoryId") as string) || 1;
 
-    if (!title || !description || !priority || !type) {
+    if (!title || !description) {
       console.log({ title, description, priority, type });
       logToSentry(
         "Validation Error: Missing ticket fields",
@@ -44,20 +45,22 @@ export async function createTicket(
       return { success: false, message: "All fields are required" };
     }
 
+    const enumPriority = priority as Priority;
+    const enumType = type as TicketType;
+
     // Create ticket
     const ticket = await prisma.ticket.create({
       data: {
         title,
         description,
-        priority,
-        type,
+        priority: enumPriority,
+        type: enumType,
         estimation,
-        status: "OPEN",
         user: {
           connect: { id: user.id },
         },
         category: {
-          connect: { id: category },
+          connect: { id: categoryId },
         },
       },
     });

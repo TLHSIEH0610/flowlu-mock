@@ -18,7 +18,7 @@ const Navbar = async () => {
       </div>
 
       {/* Profile Avatar and Dropdown */}
-      <UserIcon user={user} />
+      {user && <UserIcon user={user} />}
     </nav>
   );
 };

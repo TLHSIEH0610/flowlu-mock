@@ -1,15 +1,16 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, CategoryName } from "@prisma/client";
 const prisma = new PrismaClient();
+import { TicketCategories } from "@/constants";
 
 async function main() {
   try {
-    const defaultCategories = ["To do", "InProgress", "Done"];
+    for (const category of TicketCategories) {
+      const value = category.value as CategoryName;
 
-    for (const name of defaultCategories) {
       await prisma.category.upsert({
-        where: { name },
+        where: { name: value },
         update: {},
-        create: { name },
+        create: { name: value },
       });
     }
 

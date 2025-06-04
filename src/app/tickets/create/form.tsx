@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createTicket } from "@/actions/ticket.actions";
 import { toast } from "sonner";
 import { CategoryProps } from "@/types/ticket";
+import { TicketTypes, TicketPriorities } from "@/constants";
 
 const NewTicketForm = ({ categories }: { categories: CategoryProps[] }) => {
   const [state, formAction] = useActionState(createTicket, {
@@ -29,14 +30,12 @@ const NewTicketForm = ({ categories }: { categories: CategoryProps[] }) => {
       <h2 className="text-2xl font-semibold text-gray-800">New Issue</h2>
       <select
         name="type"
-        defaultValue="Task"
+        defaultValue={TicketTypes[0].value}
         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
-        <option>Task</option>
-        <option>Bug</option>
-        <option>Story</option>
-        <option>Ticket</option>
-        <option>Change</option>
+        {TicketTypes.map((type) => (
+          <option value={type.value}>{type.label}</option>
+        ))}
       </select>
 
       <div>
@@ -45,7 +44,7 @@ const NewTicketForm = ({ categories }: { categories: CategoryProps[] }) => {
         </label>
 
         <select
-          name="category"
+          name="categoryId"
           defaultValue={1}
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
@@ -88,12 +87,12 @@ const NewTicketForm = ({ categories }: { categories: CategoryProps[] }) => {
         </label>
         <select
           name="priority"
-          defaultValue="Low"
+          defaultValue={TicketPriorities[0].value}
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option>Low</option>
-          <option>Normal</option>
-          <option>High</option>
+          {TicketPriorities.map((priority) => (
+            <option value={priority.value}>{priority.label}</option>
+          ))}
         </select>
       </div>
       <div>

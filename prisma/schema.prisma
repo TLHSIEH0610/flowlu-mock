@@ -1,8 +1,25 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+enum Priority {
+  low
+  normal
+  high
+}
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+  
+enum CategoryName {
+  todo
+  inprogress
+  done
+  accepted
+}
+
+enum TicketType { 
+  task
+  bug
+  story
+  change
+  }
+
+
 
 generator client {
   provider = "prisma-client-js"
@@ -23,15 +40,13 @@ model User {
   tickets   Ticket[]
 }
 
-
 model Ticket {
   id String @id @default(cuid())
-  type String
+  type TicketType? @default(task)
   title String
   description String
-  priority String
+  priority Priority? @default(low)
   estimation Int @default(0)
-  status String @default("OPEN")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId String
@@ -42,6 +57,6 @@ model Ticket {
 
 model Category {
   id Int @id @default(autoincrement())
-  name String @unique
+  name CategoryName @unique
   tickets Ticket[] 
 }

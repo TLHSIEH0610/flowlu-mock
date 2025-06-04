@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa";
 import { User } from "@prisma/client";
 
-export default function UserIcon({ user }: { user: User }) {
+export default function UserIcon({ user }: { user: User | null }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
