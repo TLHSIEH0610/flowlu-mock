@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  FaUserCircle,
+  // FaUserCircle,
   FaSignOutAlt,
-  FaSlidersH,
-  FaExchangeAlt,
+  // FaSlidersH,
+  // FaExchangeAlt,
 } from "react-icons/fa";
 
 type User = {

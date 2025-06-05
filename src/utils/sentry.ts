@@ -5,7 +5,7 @@ type LogLevel = "fatal" | "error" | "warning" | "info" | "debug";
 export function logToSentry(
   message: string,
   category: string = "general",
-  data?: Record<string, any>,
+  data?: Record<string, unknown>,
   level: LogLevel = "info",
   error?: unknown
 ) {
