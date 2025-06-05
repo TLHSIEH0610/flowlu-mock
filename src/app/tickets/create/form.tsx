@@ -34,7 +34,9 @@ const NewTicketForm = ({ categories }: { categories: CategoryProps[] }) => {
         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         {TicketTypes.map((type) => (
-          <option value={type.value}>{type.label}</option>
+          <option key={type.value} value={type.value}>
+            {type.label}
+          </option>
         ))}
       </select>
 
@@ -91,7 +93,9 @@ const NewTicketForm = ({ categories }: { categories: CategoryProps[] }) => {
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {TicketPriorities.map((priority) => (
-            <option value={priority.value}>{priority.label}</option>
+            <option key={priority.value} value={priority.value}>
+              {priority.label}
+            </option>
           ))}
         </select>
       </div>
