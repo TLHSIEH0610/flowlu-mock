@@ -1,6 +1,8 @@
 import Image from "next/image";
 import UserIcon from "./navbar-user";
 import { getCurrentUser } from "@/lib/auth";
+import { logoutUser } from "@/actions/auth.actions";
+import Calender from "@/components/navbar-calender";
 
 const Navbar = async () => {
   const user = await getCurrentUser();
@@ -13,12 +15,15 @@ const Navbar = async () => {
           alt="FlowLu Logo"
           width={102}
           height={22}
+          priority
           className="object-contain"
         />
       </div>
-
+      <div className="flex justify-center items-center gap-2">
+        <Calender />
+        {user && <UserIcon user={user} logout={logoutUser} />}
+      </div>
       {/* Profile Avatar and Dropdown */}
-      {user && <UserIcon user={user} />}
     </nav>
   );
 };

@@ -1,17 +1,39 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   FaUserCircle,
   FaSignOutAlt,
   FaSlidersH,
   FaExchangeAlt,
 } from "react-icons/fa";
-import { User } from "@prisma/client";
 
-export default function UserIcon({ user }: { user: User | null }) {
+type User = {
+  id: string;
+  email: string;
+  name: string;
+};
+
+export default function UserIcon({
+  user,
+  logout,
+}: {
+  user: User | null;
+  logout: () => void;
+}) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const router = useRouter();
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="relative">
@@ -29,7 +51,7 @@ export default function UserIcon({ user }: { user: User | null }) {
             <div className="text-sm text-gray-200">{user.email}</div>
           </div>
           <ul className="py-2 text-sm">
-            <li className="hover:bg-blue-700 px-4 py-2 flex items-center gap-2 cursor-pointer">
+            {/* <li className="hover:bg-blue-700 px-4 py-2 flex items-center gap-2 cursor-pointer">
               <FaUserCircle />
               My Profile
             </li>
@@ -40,8 +62,11 @@ export default function UserIcon({ user }: { user: User | null }) {
             <li className="hover:bg-blue-700 px-4 py-2 flex items-center gap-2 cursor-pointer">
               <FaExchangeAlt />
               My Accounts
-            </li>
-            <li className="hover:bg-blue-700 px-4 py-2 flex items-center gap-2 cursor-pointer">
+            </li> */}
+            <li
+              className="hover:bg-blue-700 px-4 py-2 flex items-center gap-2 cursor-pointer"
+              onClick={handleLogout}
+            >
               <FaSignOutAlt />
               Log Out
             </li>
