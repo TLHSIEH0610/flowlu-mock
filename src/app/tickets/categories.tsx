@@ -67,7 +67,7 @@ const Ticket = ({
       const hoverMiddleY =
         (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
       const clientOffset = monitor.getClientOffset();
-      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+      const hoverClientY = clientOffset!.y - hoverBoundingRect.top;
 
       if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) return;
       if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) return;
@@ -78,7 +78,11 @@ const Ticket = ({
     },
   });
 
-  const [{ isDragging }, drag] = useDrag<DragItem>({
+  const [{ isDragging }, drag] = useDrag<
+    DragItem,
+    unknown,
+    { isDragging: boolean }
+  >({
     type: "TICKET",
     item: { id: ticket.id, categoryId, ticketIndex },
     collect: (monitor) => ({
@@ -103,7 +107,7 @@ const Ticket = ({
         <h4 className="font-medium text-gray-900">{ticket.title}</h4>
         <span
           className={`text-xs px-2 py-1 rounded-full ${
-            priorityColors[ticket.priority] ?? priorityColors.Low
+            priorityColors[ticket.priority ?? "Low"] ?? priorityColors.Low
           }`}
         >
           {ticket.priority}
@@ -157,9 +161,13 @@ const Category = ({
     },
   });
 
+  const dropRef = (element: HTMLDivElement | null) => {
+    drop(element);
+  };
+
   return (
     <div
-      ref={drop}
+      ref={dropRef}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);

@@ -1,11 +1,12 @@
+import { Priority, TicketType } from "@prisma/client";
+
 export interface TicketProps {
   id: string;
-  type: string;
+  type?: TicketType | null;
   title: string;
   description: string;
-  priority: string;
-  estimation: number;
-  status: string;
+  priority?: Priority | null;
+  estimation?: number;
   createdAt: Date;
   updatedAt: Date;
   userId: string;

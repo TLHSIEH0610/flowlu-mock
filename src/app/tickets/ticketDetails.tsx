@@ -21,10 +21,6 @@ const TicketDetails = ({ ticket }: { ticket: TicketProps }) => {
           <p className="mt-1 text-gray-700">{ticket.priority}</p>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Status</h3>
-          <p className="mt-1 text-gray-700">{ticket.status}</p>
-        </div>
-        <div>
           <h3 className="text-lg font-semibold text-gray-900">Type</h3>
           <p className="mt-1 text-gray-700">{ticket.type}</p>
         </div>
