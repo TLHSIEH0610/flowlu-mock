@@ -79,6 +79,7 @@ export async function registerUser(
       "error",
       error
     );
+    console.error(error);
     return {
       success: false,
       message: "Something went wrong, please try again",

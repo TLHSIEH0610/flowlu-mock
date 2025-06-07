@@ -18,7 +18,7 @@ export default function UserIcon({
   user,
   logout,
 }: {
-  user: User | null;
+  user: User;
   logout: () => void;
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -30,10 +30,6 @@ export default function UserIcon({
     await logout();
     router.push("/login");
   };
-
-  if (!user) {
-    return null;
-  }
 
   return (
     <div className="relative">

@@ -6,7 +6,7 @@ import Calender from "@/components/navbar-calender";
 
 const Navbar = async () => {
   const user = await getCurrentUser();
-
+  if (!user) return null;
   return (
     <nav className="bg-[#26263E] border-b border-gray-200 px-6 py-2 flex justify-between items-center relative">
       <div className="flex items-center gap-2">
@@ -21,7 +21,7 @@ const Navbar = async () => {
       </div>
       <div className="flex justify-center items-center gap-2">
         <Calender />
-        {user && <UserIcon user={user} logout={logoutUser} />}
+        <UserIcon user={user} logout={logoutUser} />
       </div>
       {/* Profile Avatar and Dropdown */}
     </nav>
