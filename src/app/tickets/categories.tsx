@@ -234,6 +234,7 @@ export default function Categories() {
   const [selectedTicket, setSelectedTicket] = useState<TicketProps | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(true);
 
   const moveTicket = (
     dragIndex: number,
@@ -271,13 +272,26 @@ export default function Categories() {
   };
 
   const refreshCategories = async () => {
-    const data = await getCategories();
-    setCategories(data);
+    setIsLoading(true);
+    try {
+      const data = await getCategories();
+      setCategories(data);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     refreshCategories();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[200px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <DndProvider backend={HTML5Backend}>

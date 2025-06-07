@@ -22,13 +22,19 @@ export default function UserIcon({
   logout: () => void;
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
 
   const handleLogout = async () => {
-    await logout();
-    router.push("/login");
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      router.push("/login");
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -63,8 +69,12 @@ export default function UserIcon({
               className="hover:bg-blue-700 px-4 py-2 flex items-center gap-2 cursor-pointer"
               onClick={handleLogout}
             >
-              <FaSignOutAlt />
-              Log Out
+              {isLoggingOut ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              ) : (
+                <FaSignOutAlt />
+              )}
+              {isLoggingOut ? "Logging out..." : "Log Out"}
             </li>
           </ul>
         </div>
